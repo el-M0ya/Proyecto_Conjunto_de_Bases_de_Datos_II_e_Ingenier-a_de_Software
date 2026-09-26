@@ -20,6 +20,7 @@
 | Exportación a PDF | jsPDF + jsPDF-AutoTable |
 | Validación | Zod 4 |
 | Notificaciones | Sonner |
+| Fondos animados | **ogl** 1 (WebGL) + componente *Ghost Fibers* de React Bits |
 | Pruebas | Vitest 5 + Testing Library + MSW 2 |
 | Calidad | ESLint 10 (configuración plana) + Prettier 3 |
 | Despliegue | Docker multietapa + Nginx |
@@ -159,6 +160,42 @@ preferencia antes de la hidratación para evitar el destello de estilo.
 
 Las variantes de los componentes se declaran con `class-variance-authority`, lo
 que produce un tipo cerrado: un error de estilo se detecta al compilar.
+
+---
+
+## Fondos animados
+
+La pantalla de acceso usa el efecto **Ghost Fibers** de
+[React Bits](https://reactbits.dev), adapted a los verdes de la marca.
+
+| Fichero | Responsabilidad |
+|---------|-----------------|
+| `shared/components/backgrounds/GhostFibers.tsx` | Componente de React Bits, fiel al original: sombreadores intactos y todos los parámetros en su valor por defecto salvo los colores. |
+| `shared/components/backgrounds/Backgrounds.tsx` | Decisiones de la casa: qué fondo usar, con qué verdes y cómo relacionarlo con el tema activo. |
+
+La separación permite retocar el aspecto sin tocar código de terceros.
+
+**Colores.** El verde del logotipo se definió en OKLCH dentro del sistema de
+diseño (`oklch(0.55 0.16 155)` en claro y `oklch(0.7 0.16 155)` en oscuro) y se
+convirtió a hexadecimal para el sombreador: `#008b45` y `#2bbb71`.
+
+**Variantes por tema.** El parámetro `lightMode` del componente, que el original
+expone pero deja en `false`, se vincula al tema activo. Sin él, el fondo sería
+siempre oscuro y el logotipo —cuyo texto hereda el color del tema— quedaría
+ilegible en modo claro.
+
+**Robustez.** El componente original asume que el contexto de WebGL puede
+crearse. Aquí la creación va envuelta: si el navegador no lo soporta, el
+lienzo no se monta y queda visible el degradado en CSS de respaldo, de modo que
+la pantalla nunca queda en blanco.
+
+**Rendimiento.** El efecto se frena solo cuando la pestaña pierde el foco o el
+fondo sale de la pantalla, limita la resolución de píxeles a 2, y respeta la
+preferencia del sistema de reducir el movimiento mostrando un fotograma fijo. Al
+desmontar, el contexto se libera con `WEBGL_lose_context`.
+
+Para cambiar el aspecto, edita los colores de `BRAND` en `Backgrounds.tsx`; para
+cambiar el comportamiento, pasa otros parámetros a `<GhostFibers />`.
 
 ---
 

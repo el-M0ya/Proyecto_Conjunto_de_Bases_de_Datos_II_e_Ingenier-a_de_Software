@@ -37,6 +37,46 @@ Object.defineProperty(window, 'matchMedia', {
     }) as MediaQueryList,
 })
 
+/**
+ * `jsdom` no implementa los observadores que usan los fondos animados en
+ * WebGL, de modo que sin estos dobles el componente fallaría al montarse en las
+ * pruebas. Se registran de forma global porque la carencia es del entorno de
+ * pruebas, no de un componente concreto.
+ */
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    /** @returns Nada; el doble no observa nada. */
+    observe(): void {}
+    /** @returns Nada; el doble no observa nada. */
+    unobserve(): void {}
+    /** @returns Nada; el doble no observa nada. */
+    disconnect(): void {}
+  }
+}
+
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  globalThis.IntersectionObserver = class {
+    /** Elemento raíz observado; el doble no observa nada. */
+    root = null
+    /** Margen de la raíz; el doble no lo usa. */
+    rootMargin = '0px'
+    /** Margen de desplazamiento; el doble no lo usa. */
+    scrollMargin = '0px'
+    /** Umbrales de visibilidad; el doble no dispara nada. */
+    thresholds: ReadonlyArray<number> = [0]
+    /** @returns Nada; el doble no observa nada. */
+    observe(): void {}
+    /** @returns Nada; el doble no observa nada. */
+    unobserve(): void {}
+    /** @returns Nada; el doble no observa nada. */
+    disconnect(): void {}
+    /** @returns Lista vacía; el doble no registra entradas. */
+    takeRecords(): [] {
+      return []
+    }
+  }
+}
+
 beforeAll(() => {
   // `bypass` evita que una petición no cubierta por un manejador rompa la
   // prueba con un error poco descriptivo; cada prueba declara lo que necesita.

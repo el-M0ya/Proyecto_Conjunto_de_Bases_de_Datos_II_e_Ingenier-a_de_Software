@@ -89,7 +89,12 @@ export function LoginPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="bg-card rounded-xl border p-6 shadow-sm">
+      {/*
+        La tarjeta se hace translúcida y añade desenfoque de fondo para
+        separarse del degradado animado que hay detrás. Sin esto, el texto
+        perdería contraste sobre las zonas claras de la animación.
+      */}
+      <div className="bg-card/85 border-border/60 rounded-xl border p-6 shadow-lg shadow-black/5 backdrop-blur-md">
         <h1 className="text-lg font-semibold">Iniciar sesión</h1>
         <p className="text-muted-foreground mt-1 mb-6 text-sm">
           Accede con las credenciales que te proporcionó el administrador del gimnasio.
