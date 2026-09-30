@@ -1,0 +1,22 @@
+# Normalización de finales de línea.
+#
+# El equipo trabaja desde distintos sistemas operativos, así que se fija un
+# formato en el repositorio y se deja que Git lo adapte en cada máquina. Sin
+# esto, un archivo tocado en Windows y en Linux produce un diff completo en
+# cada commit, lo que dificulta la revisión del aporte de cada integrante.
+
+* text=auto eol=lf
+
+# Ficheros que Git debe tratar como binarios.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.woff
+*.woff2
+
+# Ficheros de Windows que deben conservar sus saltos de línea CRLF.
+*.bat
+*.cmd

@@ -137,28 +137,34 @@ Entidades principales identificadas:
 
 ## 🏗️ Arquitectura y tecnologías
 
-> Las tecnologías definitivas se confirmarán durante el desarrollo. Propuesta inicial:
-
-| Capa | Tecnología prevista |
-|------|---------------------|
-| Frontend | `          ` |
-| Backend | `          ` |
-| Base de datos | `          ` |
-| ORM | `          ` |
-| Contenedores | Docker / Docker Compose |
-| Pruebas | `          ` |
-| Control de versiones | Git + GitHub |
+| Capa | Tecnología |
+|------|------------|
+| Frontend | **React 19** + **TypeScript 6** (modo estricto) + **Vite 8** |
+| Estilos | **Tailwind CSS v4** + **shadcn/ui** sobre Radix UI |
+| Estado | **TanStack Query 5** (servidor) + contextos de React (sesión y tema) |
+| Backend | Por definir — se implementa en la siguiente iteración |
+| Base de datos | **PostgreSQL 17** (modelo relacional) + **MongoDB 8** (estructura de bloques) + **Redis 8** (caché de la rutina activa) |
+| Contenedores | Docker + Docker Compose (frontend multietapa con Nginx) |
+| Pruebas | **Vitest 5** + Testing Library + **MSW 2** |
+| Calidad | ESLint 10 (con `eslint-plugin-jsdoc`) + Prettier 3 |
+| Control de versiones | Git + GitHub (con CI en `.github/workflows/`) |
 
 **Características arquitectónicas:**
-- Aplicación desacoplada, extensible y mantenible.
-- Implementación de al menos **dos patrones de diseño**.
-- Pruebas unitarias tanto en back-end como en front-end.
-- Uso de variables de entorno para credenciales y configuración sensible.
+
+- Arquitectura **hexagonal** por capas: `app → features → domain`, con el dominio puro y sin dependencias de React ni de red.
+- **Nueve patrones de diseño** aplicados, entre ellos Repository, Adapter, Strategy, Factory, Chain of Responsibility, Facade, Provider, Compound Components y Guard. El detalle está en [`frontend/README.md`](frontend/README.md).
+- Pruebas unitarias, de componentes e integración en el front-end, con **umbrales de cobertura** que exige el CI.
+- JSDoc obligatorio en el código, verificado por ESLint.
+- Variables de entorno validadas con Zod en el arranque.
+- Sin secretos en el repositorio: configuración por variables de entorno y fichero `.env.example`.
+
+> **Nota de diseño de la base de datos.** El enunciado establece que la estructura de bloques de cada rutina es de esquema variable y que *no debe modelarse junto al resto de tablas*, y que la rutina activa debe estar disponible de forma prácticamente inmediata con independencia de los usuarios conectados. De ahí la combinación de un modelo relacional (PostgreSQL), un almacén documental para esa estructura variable (MongoDB) y una caché (Redis). El motor relacional se confirmará al cerrar el MERX (semana 5).
 
 ---
 
 ## 📋 Requisitos
 
+- **Node.js 20.19+** (probado con 24.x) y npm 10+.
 - Docker y Docker Compose.
 - Git.
 
@@ -166,12 +172,60 @@ Entidades principales identificadas:
 
 ## 🚀 Instalación y ejecución
 
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/el-M0ya/Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software
-cd Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software
+### Sólo el frontend, con datos simulados
 
+```bash
+git clone https://github.com/el-M0ya/Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software
+cd Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software/frontend
+npm install
+npm run mock        # http://localhost:5173 con respuestas simuladas de MSW
 ```
+
+Las credenciales de prueba para cada rol están en [`frontend/README.md`](frontend/README.md).
+
+### Frontend contra el backend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local     # ajustar VITE_API_PROXY_TARGET
+npm run dev                    # http://localhost:5173
+```
+
+### Servicios de infraestructura
+
+```bash
+cp .env.example .env
+docker compose up              # PostgreSQL, Redis y MongoDB
+```
+
+### Frontend compilado, en contenedor
+
+```bash
+docker compose --profile full up --build
+```
+
+### Comprobación de calidad
+
+```bash
+cd frontend
+npm run verify                 # tipos + estilo + pruebas
+npm run test:coverage          # con informe de cobertura
+```
+
+---
+
+## 🧪 Pruebas
+
+| Ámbito | Ubicación | Herramientas |
+|--------|-----------|--------------|
+| Unitarias | `frontend/src/tests/unit` | Vitest, dobles de repositorio |
+| Componentes | `frontend/src/tests/components` | Testing Library, `user-event` |
+| Integración | `frontend/src/tests/integration` | MSW sobre los repositorios HTTP reales |
+| Backend | `tests/` | Por definir junto con la implementación del servidor |
+
+La suite del frontend fija umbrales mínimos de cobertura —60 % en sentencias,
+ramas, funciones y líneas— que el CI verifica en cada integración.
 
 ---
 
@@ -180,10 +234,22 @@ cd Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software
 .
 ├── backend/                # Código del servidor
 ├── frontend/               # Código de la aplicación web
+│   ├── src/
+│   │   ├── app/            # Composition root: providers, enrutador, guardas, layouts
+│   │   ├── core/           # Infraestructura transversal: config, HTTP, RBAC, DI, storage
+│   │   ├── domain/         # Dominio puro: entidades y contratos (puertos)
+│   │   ├── features/       # Vertical slices por capacidad de negocio
+│   │   ├── infrastructure/ # Adaptadores: implementaciones HTTP de los puertos
+│   │   ├── shared/         # Componentes de UI, hooks y utilidades reutilizables
+│   │   ├── mocks/          # Datos simulados con MSW
+│   │   └── tests/          # Unitarias, de componentes e integración
+│   ├── Dockerfile          # Construcción multietapa y publicación en Nginx
+│   └── nginx.conf          # Enrutamiento del lado del cliente y cabeceras de seguridad
 ├── db/                     # Scripts SQL, migraciones, respaldos
 ├── docs/                   # Informes, documentación técnica, diagramas
 ├── docker/                 # Dockerfiles y configuración de contenedores
-├── tests/                  # Pruebas unitarias e integración
+├── tests/                  # Pruebas del backend
+├── .github/workflows/      # Integración continua
 ├── .env.example            # Variables de entorno de ejemplo
 ├── .gitignore              # Archivos excluidos del versionado
 ├── docker-compose.yml      # Orquestación de servicios
