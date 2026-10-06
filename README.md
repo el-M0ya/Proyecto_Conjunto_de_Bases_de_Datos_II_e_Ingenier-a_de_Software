@@ -54,7 +54,7 @@ Este proyecto se desarrolla de forma conjunta para las asignaturas **Bases de Da
 | Fabio Hernández Piloto | C311 | [@FabioPilot](https://t.me/FabioPilot) | [Fabio-Pilot](https://github.com/Fabio-Pilot) |
 | Gabriel Pérez Suárez | C312 | [@GabrielPS1016](https://t.me/GabrielPS1016) | [GaboPS1016](https://github.com/GaboPS1016) |
 | Alex Leonardo Cuervo Grillo | C311 | [@cuervogrillo](https://t.me/cuervogrillo) | [AlexCuervo](https://github.com/AlexCuervo) |
-|Alejandro Lopez Castro| C311| [@AlejandroL04](https://t.me/AlejandroL04) | [Kaik0405](https://github.com/Kaik0405) |
+|Alejandro Lopez Castro| C312| [@AlejandroL04](https://t.me/AlejandroL04) | [Kaik0405](https://github.com/Kaik0405) |
 
 **Repositorio:** `https://github.com/el-M0ya/Proyecto_Conjunto_de_Bases_de_Datos_II_e_Ingenier-a_de_Software`  
 
